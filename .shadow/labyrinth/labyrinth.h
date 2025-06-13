@@ -3,7 +3,7 @@
 #define VERSION_INFO "Labyrinth Game"
 
 typedef struct {
-    char map[MAX_ROWS][MAX_COLS];
+    char map[MAX_ROWS][MAX_COLS]; // map 是二维数组
     int rows;
     int cols;
 } Labyrinth;
@@ -13,7 +13,7 @@ typedef struct {
     int col;
 } Position;
 
-
+// 函数声明，相当于接口，在 labyrinth.c 中实现这些函数，其他模块可以调用这些函数
 bool isValidPlayer(char playerId);
 bool loadMap(Labyrinth *labyrinth, const char *filename);
 Position findPlayer(Labyrinth *labyrinth, char playerId);
