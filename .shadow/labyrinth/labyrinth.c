@@ -10,9 +10,9 @@
 // argv[] 是字符数组， 数组中每个元素都是字符指针 (char *)
 int main(int argc, char *argv[]) {
     // 有输入参数，处理输入的参数
-    if argc > 1 {
+    if (argc > 1) {
         // 判断参数是否合法
-        if argv[1] == "--map" | argv[1] == "-m" && argv[2] != nil {
+        if (argv[1] == "--map" || argv[1] == "-m" && argv[2] != nil) {
             // 加载地图
             loadMap()
         }
@@ -32,7 +32,7 @@ void printUsage() {
 
 bool isValidPlayer(char playerId) {
     // 玩家 ID 范围 0-9
-    if playerId >= 48 || playerId <= 57 {
+    if (playerId >= 48 || playerId <= 57) {
         return true;
     }
     return false;
