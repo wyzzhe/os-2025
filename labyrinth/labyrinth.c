@@ -12,12 +12,12 @@ int main(int argc, char *argv[]) {
     // 有输入参数，处理输入的参数
     if (argc > 1) {
         // 判断参数是否合法
-        if (strcmp(argv[1], "--map") || argv[1] == "-m" && argv[2] != nil) {
+        if (strcmp(argv[1], "--map") || strcmp(argv[1], "-m") && argv[2] != NULL) {
             // 加载地图
-            loadMap()
+            // loadMap()
         }
     } else {
-        printUsage()
+        printUsage();
     }
     return 0;
 }
@@ -61,8 +61,8 @@ Position findFirstEmptySpace(Labyrinth *labyrinth) {
 bool isEmptySpace(Labyrinth *labyrinth, int row, int col) {
     // 查找指定位置是否为空
     // 判断输入位置是否合法
-    if row >= 0 && row <= 99 && col >= 0 && col <= 99 {
-        return labyrinth.map[row][col] == 1
+    if (row >= 0 && row <= 99 && col >= 0 && col <= 99) {
+        return labyrinth->map[row][col] == 1;
     }
     return false;
 }
