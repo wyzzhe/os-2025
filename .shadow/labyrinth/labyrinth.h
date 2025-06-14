@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #define MAX_ROWS 100 // 编译前文本替换, MAX_ROWS 不占用任何内存
 #define MAX_COLS 100
 #define VERSION_INFO "Labyrinth Game"
