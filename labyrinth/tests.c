@@ -2,6 +2,7 @@
 #include "testkit.h"
 #include "labyrinth.h"
 
+// 系统测试，测试整个程序
 SystemTest(test_version, ((const char *[]){ "--version" })) {
     tk_assert(result->exit_status == 0, "Must exit 0");
     tk_assert(
@@ -57,7 +58,7 @@ SystemTest(test_invalid_player,
     tk_assert(result->exit_status == 1, "Invalid player ID should return error");
 }
 
-
+// 单元测试，测试单个函数
 UnitTest(example_test) {
     tk_assert(1 == 1, "This should never fail.");
 }
