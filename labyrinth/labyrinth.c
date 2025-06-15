@@ -46,20 +46,19 @@ int main(int argc, char *argv[]) {
                         if (!loadMap(&labyrinth, optarg)) {
                             return 1;
                         }
-                        print("加载地图成功\n");
+                        printf("加载地图成功\n");
                         break;
                     case 'p':
                         // 判断玩家ID是否合法
-                        if (!isValidPlayer(optarg)) {
+                        if (!isValidPlayer(*optarg)) {
                             return 1;
                         }
-                        player = optarg;
                         break;
                     case MOVE:
                         // 向某方向移动
                         exit(0);
                     case VERSION:
-                        print("Labyrith Game V0.0.0\n");
+                        printf("Labyrith Game V0.0.0\n");
                         exit(0);
                     case '?':
                         printUsage();
