@@ -7,3 +7,7 @@ export MODULE := M1
 all: $(NAME)
 # include 包含另一个Makefile， .mk 是辅助 Makefile 文件
 include ../.shadow/oslabs.mk
+
+# 自定义目标 my
+my:
+	gcc -g -I../testkit/ -o labyrinth ./labyrinth.c
