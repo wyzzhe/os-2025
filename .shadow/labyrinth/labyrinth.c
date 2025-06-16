@@ -20,7 +20,6 @@ int main(int argc, char *argv[]) {
     char playerId; // 玩家ID
     char *filename; // 地图路径
     Labyrinth labyrinth; // 迷宫地图
-    Position pos; // 玩家位置
 
     // 短选项字符串
     const char *optstring = "m:p:";
@@ -51,7 +50,7 @@ int main(int argc, char *argv[]) {
                 if (!isValidPlayer(*optarg)) {
                     return EXIT_FAILURE;
                 }
-                playerId = optarg;
+                playerId = *optarg;
                 break;
             case MOVE:
                 // 移动玩家位置
