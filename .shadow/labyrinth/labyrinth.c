@@ -17,8 +17,6 @@ void printUsage();
 // argv[] 是字符数组，数组中每个元素都是字符指针 (char *)
 int main(int argc, char *argv[]) {
     int opt;
-    int player;
-    char *output_file = NULL;
 
     // 短选项字符串
     const char *optstring = "mp:";
