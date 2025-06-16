@@ -92,29 +92,27 @@ bool isValidPlayer(char playerId) {
 
 // 加载地图文件，系统调用
 bool loadMap(Labyrinth *labyrinth, const char *filename) {
-    if (1) {
-        // 地图文件合法检测
-        FILE *file = fopen(filename, "r");
-        if (file == NULL) {
-            perror("Error opening file");
-            return EXIT_FAILURE;
-        }
-
-        // 获取文件大小
-        fseek(file, 0, SEEK_END);
-        long file_size = ftell(file);
-        rewind(file); // 重置文件指针到开头
-
-        // 分配内存并读取全部内容
-        char *content = (char*)malloc(file_size + 1); // +1 用于结尾的 '\0'
-        fread(content, 1, file_size, file);
-        content[file_size] = '\0'; // 添加字符串终止符
-
-        printf("%s", content); // 输出文件内容
-
-        free(content); // 释放内存
-        fclose(file);
+    // 地图文件合法检测
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("Error opening file");
+        return EXIT_FAILURE;
     }
+
+    // 获取文件大小
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    rewind(file); // 重置文件指针到开头
+
+    // 分配内存并读取全部内容
+    char *content = (char*)malloc(file_size + 1); // +1 用于结尾的 '\0'
+    fread(content, 1, file_size, file);
+    content[file_size] = '\0'; // 添加字符串终止符
+
+    printf("%s", content); // 输出文件内容
+
+    free(content); // 释放内存
+    fclose(file);
 
     return false;
 }
