@@ -116,7 +116,13 @@ bool loadMap(Labyrinth *labyrinth, const char *filename) {
 
         // 分配内存并读取全部内容
         char *content = (char*)malloc(file_size + 1); // +1 用于结尾的 '\0'
-        fread(content, 1, file_size, file);
+        size_t bytesRead = fread(content, 1, file_size, file);
+        if (bytesRead != file_size) {
+            perror("Error reading file"); // 打印错误信息
+            free(content); // 释放已分配的内存
+            fclose(file); // 关闭文件
+            return false; // 返回错误状态
+        }
         content[file_size] = '\0'; // 添加字符串终止符
 
         printf("%s", content); // 输出文件内容
@@ -162,7 +168,7 @@ bool isEmptySpace(Labyrinth *labyrinth, int row, int col) {
 bool movePlayer(Labyrinth *labyrinth, char playerId, const char *direction) {
     Position pos;
     // 先查找玩家位置
-    pos = findPlayer(&labyrinth, playerId);
+    pos = findPlayer(labyrinth, playerId);
     if (pos.row != -1 && pos.col != -1) {
         labyrinth->map[pos.row][pos.col] = '.';
         switch (*direction) {
