@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     int opt;
 
     // 短选项字符串
-    const char *optstring = "mp:";
+    const char *optstring = "m:p:";
     
     // 长选项数组
     const struct option longopts[] = {
@@ -31,41 +31,46 @@ int main(int argc, char *argv[]) {
     };
 
     while ((opt = getopt_long (argc, argv, optstring, longopts, NULL))
-            != -1)
-        {
-            switch (opt)
-                {
-                    case 'm':
-                        // 是否要检测输入参数是否合法?
+            != -1) {
+        switch (opt) {
+            case 'm':
+                // 是否要检测输入参数是否合法?
 
-                        // 初始化一个地图结构体，从文件中读入地图数据
-                        Labyrinth labyrinth; // 初始化指针还是结构体？
-                        // 加载地图之前要先判断地图是否合法
-                        if (!loadMap(&labyrinth, optarg)) {
-                            return 1;
-                        }
-                        printf("加载地图成功\n");
-                        break;
-                    case 'p':
-                        // 判断玩家ID是否合法
-                        if (!isValidPlayer(*optarg)) {
-                            return 1;
-                        }
-                        break;
-                    case MOVE:
-                        // 向某方向移动
-                        exit(0);
-                    case VERSION:
-                        printf("Labyrith Game V0.0.0\n");
-                        exit(0);
-                    case '?':
-                        printUsage();
-                        return 1;
-                    default:
-                        fprintf(stderr, "Unknown error\n");
-                        return 1;
+                // 初始化一个地图结构体，从文件中读入地图数据
+                Labyrinth labyrinth; // 初始化指针还是结构体？
+                // 加载地图之前要先判断地图是否合法
+                if (!loadMap(&labyrinth, optarg)) {
+                    return 1;
                 }
+                printf("加载地图成功\n");
+                break;
+            case 'p':
+                // 判断玩家ID是否合法
+                if (!isValidPlayer(*optarg)) {
+                    return 1;
+                }
+                break;
+            case MOVE:
+                // 向某方向移动
+                exit(0);
+            case VERSION:
+                printf("Labyrith Game V0.0.0\n");
+                exit(0);
+            case '?':
+                printUsage();
+                return 1;
+            default:
+                fprintf(stderr, "Unknown error\n");
+                return 1;
         }
+    }
+    
+    // 检查是否有额外的非选项参数（如"hello"）
+    if (optind < argc) {
+        fprintf(stderr, "错误：非法的非选项参数 '%s'\n", argv[optind]);
+        printUsage();
+        return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
 }
 
