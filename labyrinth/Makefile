@@ -11,3 +11,5 @@ include ../.shadow/oslabs.mk
 # 自定义目标 my
 my:
 	gcc -g -I../testkit/ -o labyrinth ./labyrinth.c
+run:
+	TK_VERBOSE= ./labyrinth > test-res.txt

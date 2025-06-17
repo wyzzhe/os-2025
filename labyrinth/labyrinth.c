@@ -9,6 +9,8 @@
 
 #define MOVE 1000
 #define VERSION 1001
+#define MAX_ROWS 100
+#define MAX_COLS 100
 
 // 函数声明
 void printUsage();
@@ -16,12 +18,13 @@ void printUsage();
 // argc 是命令行参数的个数，argv 是命令行参数的值
 // argv[] 是字符数组，数组中每个元素都是字符指针 (char *)
 int main(int argc, char *argv[]) {
-    int opt;
-    int player;
-    char *output_file = NULL;
+    int opt; // 命令行选项
+    char playerId; // 玩家ID
+    char *filename; // 地图路径
+    Labyrinth labyrinth; // 迷宫地图
 
     // 短选项字符串
-    const char *optstring = "mp:";
+    const char *optstring = "m:p:";
     
     // 长选项数组
     const struct option longopts[] = {
@@ -33,42 +36,52 @@ int main(int argc, char *argv[]) {
     };
 
     while ((opt = getopt_long (argc, argv, optstring, longopts, NULL))
-            != -1)
-        {
-            switch (opt)
-                {
-                    case 'm':
-                        // 是否要检测输入参数是否合法?
-
-                        // 初始化一个地图结构体，从文件中读入地图数据
-                        Labyrinth labyrinth; // 初始化指针还是结构体？
-                        // 加载地图之前要先判断地图是否合法
-                        if (!loadMap(&labyrinth, optarg)) {
-                            return 1;
-                        }
-                        printf("加载地图成功\n");
-                        break;
-                    case 'p':
-                        // 判断玩家ID是否合法
-                        if (!isValidPlayer(*optarg)) {
-                            return 1;
-                        }
-                        break;
-                    case MOVE:
-                        // 向某方向移动
-                        exit(0);
-                    case VERSION:
-                        printf("Labyrith Game V0.0.0\n");
-                        exit(0);
-                    case '?':
-                        printUsage();
-                        return 1;
-                    default:
-                        fprintf(stderr, "Unknown error\n");
-                        return 1;
+            != -1) {
+        switch (opt) {
+            case 'm':
+                // 是否要检测输入参数是否合法?
+                filename = optarg;
+                // 加载地图之前要先判断地图是否合法
+                if (!loadMap(&labyrinth, filename)) {
+                    return EXIT_FAILURE;
                 }
-            
+                printf("加载地图成功\n");
+                break;
+            case 'p':
+                // 判断玩家ID是否合法
+                if (!isValidPlayer(*optarg)) {
+                    return EXIT_FAILURE;
+                }
+                playerId = *optarg;
+                break;
+            case MOVE:
+                // 移动玩家位置
+                if (!movePlayer(&labyrinth, playerId, optarg)) {
+                    return EXIT_FAILURE;
+                }
+                // 保存地图
+                if (!saveMap(&labyrinth, filename)) {
+                    return EXIT_FAILURE;
+                }
+                break;
+            case VERSION:
+                printf("Labyrith Game V0.0.0\n");
+                break;
+            case '?':
+                printUsage();
+                return EXIT_FAILURE;
+            default:
+                fprintf(stderr, "Unknown error\n");
+                return EXIT_FAILURE;
         }
+    }
+    
+    // 检查是否有额外的非选项参数（如"hello"）
+    if (optind < argc) {
+        fprintf(stderr, "错误：非法的非选项参数 '%s'\n", argv[optind]);
+        printUsage();
+        return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
 }
 
@@ -90,38 +103,78 @@ bool isValidPlayer(char playerId) {
 
 // 加载地图文件，系统调用
 bool loadMap(Labyrinth *labyrinth, const char *filename) {
-    if (1) {
-        // 地图文件合法检测
-        FILE *file = fopen(filename, "r");
-        if (file == NULL) {
-            perror("Error opening file");
-            return EXIT_FAILURE;
-        }
-
-        // 获取文件大小
-        fseek(file, 0, SEEK_END);
-        long file_size = ftell(file);
-        rewind(file); // 重置文件指针到开头
-
-        // 分配内存并读取全部内容
-        char *content = (char*)malloc(file_size + 1); // +1 用于结尾的 '\0'
-        fread(content, 1, file_size, file);
-        content[file_size] = '\0'; // 添加字符串终止符
-
-        printf("%s", content); // 输出文件内容
-
-        free(content); // 释放内存
-        fclose(file);
+    // 打开文件
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) { // 文件不存在
+        perror("Error opening file");
+        return EXIT_FAILURE;
     }
 
-    return false;
+    // 初始化迷宫结构体
+    labyrinth->rows = 0;
+    labyrinth->cols = 0;
+
+    // 逐行读取文件内容
+    char line[MAX_COLS + 1];
+    while (fgets(line, sizeof(line), file)) {
+        // 去掉行尾的换行符
+        line[strcspn(line, "\n")] = '\0';
+
+        // 如果是第一行，设置列数
+        if (labyrinth->rows == 0) {
+            labyrinth->cols = strlen(line);
+            // 检查列数是否超出限制
+            if (labyrinth->cols > MAX_COLS) {
+
+            }
+        }
+
+        // 检查行数是否超出限制
+        if (labyrinth->rows >= MAX_ROWS) {
+            
+        }
+
+        // 将当前行内容复制到 labyrinth 的 map 中
+        strcpy(labyrinth->map[labyrinth->rows], line);
+
+        // 更新行数
+        labyrinth->rows++;
+    }
+
+    // 关闭文件
+    fclose(file);
+
+    // 检查是否成功读取了地图
+    if (labyrinth->rows == 0 || labyrinth->cols == 0) {
+        fprintf(stderr, "Error: Failed to load map.\n");
+        return false;
+    }
+
+    // 地图合法检测
+    if (!isConnected(labyrinth)) {
+        return false;
+    }
+
+    // 逐行打印地图
+    printf("Map loaded successfully:\n");
+    for (int i = 0; i < labyrinth->rows; i++) {
+        printf("%s\n", labyrinth->map[i]);
+    }
+    return true;
 }
 
 // 查找玩家位置
 Position findPlayer(Labyrinth *labyrinth, char playerId) {
-
-    // 找不到玩家返回 {-1, -1}
     Position pos = {-1, -1};
+    // 查找目标字符的位置
+    for (int i = 0; i < labyrinth->rows; i++) {
+        for (int j = 0; j < labyrinth->cols; j++) {
+            if (labyrinth->map[i][j] == playerId) {
+                pos.row = i;
+                pos.col = j;
+            }
+        }
+    }
     return pos;
 }
 
@@ -142,12 +195,53 @@ bool isEmptySpace(Labyrinth *labyrinth, int row, int col) {
 
 // 移动玩家位置
 bool movePlayer(Labyrinth *labyrinth, char playerId, const char *direction) {
+    Position pos;
+    // 先查找玩家位置
+    pos = findPlayer(labyrinth, playerId);
+    if (pos.row != -1 && pos.col != -1) {
+        labyrinth->map[pos.row][pos.col] = '.'; // 清楚当前玩家位置
 
-    return false;
+        // 根据方向移动玩家
+        if (strcmp(direction, "up") == 0) {
+            if (pos.row > 0 && labyrinth->map[pos.row - 1] == '.') {
+                labyrinth->map[pos.row - 1][pos.col] = playerId;
+            }
+        } else if (strcmp(direction, "down") == 0) {
+            if (pos.row < labyrinth->rows && labyrinth->map[pos.row + 1] != '.') {
+                labyrinth->map[pos.row + 1][pos.col] = playerId;
+            }
+        } else if (strcmp(direction, "left") == 0) {
+            if (pos.col > 0 && labyrinth->map[pos.col - 1] != '.') {
+                labyrinth->map[pos.row][pos.col - 1] = playerId;
+            }
+        } else if (strcmp(direction, "right") == 0) {
+            if (pos.col < labyrinth->cols && labyrinth->map[pos.col - 1] != '.') {
+                labyrinth->map[pos.row][pos.col + 1] = playerId;
+            }
+        } else {
+            printf("未知方向：%s\n", direction);
+            return false;
+        }
+
+        return true; // 移动成功
+    }
+
+    return false; // 玩家未找到或移动失败
 }
 
 bool saveMap(Labyrinth *labyrinth, const char *filename) {
-    // 系统调用
+    FILE *file = fopen(filename, "w");
+    if (file == NULL) {
+        perror("Error opening file");
+        return EXIT_FAILURE;
+    }
+    // 逐行写入地图数据
+    for (int i = 0; i < labyrinth->rows; i ++) {
+        fwrite(labyrinth->map[i], sizeof(char), labyrinth->cols, file); // 写入一行
+        fputc('\n', file); // 写入换行符
+    }
+
+    fclose(file);
     return false;
 }
 
@@ -158,5 +252,5 @@ void dfs(Labyrinth *labyrinth, int row, int col, bool visited[MAX_ROWS][MAX_COLS
 
 bool isConnected(Labyrinth *labyrinth) {
     // TODO: Implement this function
-    return false;
+    return true;
 }
