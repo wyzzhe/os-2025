@@ -23,8 +23,8 @@ int dc[] = {0, 0, -1, 1}; // 列位移
 // argv[] 是字符数组，数组中每个元素都是字符指针 (char *)
 int main(int argc, char *argv[]) {
     int opt; // 命令行选项
-    char playerId; // 玩家ID
-    char *filename; // 地图路径
+    char playerId = 0; // 玩家ID
+    char *filename = NULL; // 地图路径
     Labyrinth labyrinth; // 迷宫地图
 
     // 短选项字符串
@@ -232,19 +232,19 @@ bool movePlayer(Labyrinth *labyrinth, char playerId, const char *direction) {
 
         // 根据方向移动玩家
         if (strcmp(direction, "up") == 0) {
-            if (pos.row > 0 && labyrinth->map[pos.row - 1] == '.') {
+            if (pos.row > 0 && labyrinth->map[pos.row - 1][pos.col] == '.') {
                 labyrinth->map[pos.row - 1][pos.col] = playerId;
             }
         } else if (strcmp(direction, "down") == 0) {
-            if (pos.row < labyrinth->rows && labyrinth->map[pos.row + 1] != '.') {
+            if (pos.row < labyrinth->rows && labyrinth->map[pos.row + 1][pos.col] != '.') {
                 labyrinth->map[pos.row + 1][pos.col] = playerId;
             }
         } else if (strcmp(direction, "left") == 0) {
-            if (pos.col > 0 && labyrinth->map[pos.col - 1] != '.') {
+            if (pos.col > 0 && labyrinth->map[pos.row][pos.col - 1] != '.') {
                 labyrinth->map[pos.row][pos.col - 1] = playerId;
             }
         } else if (strcmp(direction, "right") == 0) {
-            if (pos.col < labyrinth->cols && labyrinth->map[pos.col - 1] != '.') {
+            if (pos.col < labyrinth->cols && labyrinth->map[pos.row][pos.col - 1] != '.') {
                 labyrinth->map[pos.row][pos.col + 1] = playerId;
             }
         } else {
