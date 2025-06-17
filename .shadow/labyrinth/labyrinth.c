@@ -9,9 +9,15 @@
 
 #define MOVE 1000
 #define VERSION 1001
+#define MAX_ROWS 100
+#define MAX_COLS 100
 
 // 函数声明
 void printUsage();
+
+// 定义方向数组，用于表示上下左右四个方向
+int dr[] = {-1, 1, 0, 0}; // 行位移
+int dc[] = {0, 0, -1, 1}; // 列位移
 
 // argc 是命令行参数的个数，argv 是命令行参数的值
 // argv[] 是字符数组，数组中每个元素都是字符指针 (char *)
@@ -61,10 +67,10 @@ int main(int argc, char *argv[]) {
                 if (!saveMap(&labyrinth, filename)) {
                     return EXIT_FAILURE;
                 }
-                exit(0);
+                break;
             case VERSION:
                 printf("Labyrith Game V0.0.0\n");
-                exit(0);
+                break;
             case '?':
                 printUsage();
                 return EXIT_FAILURE;
@@ -101,37 +107,68 @@ bool isValidPlayer(char playerId) {
 
 // 加载地图文件，系统调用
 bool loadMap(Labyrinth *labyrinth, const char *filename) {
-    if (1) {
-        // 地图文件合法检测
-        FILE *file = fopen(filename, "r");
-        if (file == NULL) {
-            perror("Error opening file");
-            return EXIT_FAILURE;
-        }
-
-        // 获取文件大小
-        fseek(file, 0, SEEK_END);
-        long file_size = ftell(file);
-        rewind(file); // 重置文件指针到开头
-
-        // 分配内存并读取全部内容
-        char *content = (char*)malloc(file_size + 1); // +1 用于结尾的 '\0'
-        size_t bytesRead = fread(content, 1, file_size, file);
-        if (bytesRead != file_size) {
-            perror("Error reading file"); // 打印错误信息
-            free(content); // 释放已分配的内存
-            fclose(file); // 关闭文件
-            return false; // 返回错误状态
-        }
-        content[file_size] = '\0'; // 添加字符串终止符
-
-        printf("%s", content); // 输出文件内容
-
-        free(content); // 释放内存
-        fclose(file);
+    // 打开文件
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) { // 文件不存在
+        perror("Error opening file");
+        return EXIT_FAILURE;
     }
 
-    return false;
+    // 初始化迷宫结构体
+    labyrinth->rows = 0;
+    labyrinth->cols = 0;
+
+    // 逐行读取文件内容
+    char line[MAX_COLS + 1]; // MAX_COLS + 1 为 fgets() 行尾的'\0' 提供位置
+    while (fgets(line, sizeof(line), file)) {
+        // 去掉行尾的换行符
+        line[strcspn(line, "\n")] = '\0';
+
+        // 如果是第一行，设置列数
+        if (labyrinth->rows == 0) {
+            labyrinth->cols = strlen(line);
+            // 检查列数是否超出限制
+            if (labyrinth->cols > MAX_COLS) {
+                fprintf(stderr, "Error: Column count exceeds the maximum limit of %d.\n", MAX_COLS);
+                fclose(file);
+                return false;
+            }
+        }
+
+        // 检查行数是否超出限制
+        if (labyrinth->rows >= MAX_ROWS) {
+            fprintf(stderr, "Error: Row count excedds the maximum limit of %d.\n", MAX_ROWS);
+            fclose(file);
+            return false;
+        }
+
+        // 将当前行内容复制到 labyrinth 的 map 中
+        strcpy(labyrinth->map[labyrinth->rows], line);
+
+        // 更新行数
+        labyrinth->rows++;
+    }
+
+    // 检查是否成功读取了地图
+    if (labyrinth->rows == 0 || labyrinth->cols == 0) {
+        fprintf(stderr, "Error: Failed to load map.\n");
+        fclose(file);
+        return false;
+    }
+
+    // 地图合法检测
+    if (!isConnected(labyrinth)) {
+        fprintf(stderr, "Error: The map is not connected.\n");
+        fclose(file);
+        return false;
+    }
+
+    // 逐行打印地图
+    printf("Map loaded successfully:\n");
+    for (int i = 0; i < labyrinth->rows; i++) {
+        printf("%s\n", labyrinth->map[i]);
+    }
+    return true;
 }
 
 // 查找玩家位置
@@ -152,12 +189,33 @@ Position findPlayer(Labyrinth *labyrinth, char playerId) {
 // 查找地图上第一个空的位置
 Position findFirstEmptySpace(Labyrinth *labyrinth) {
     Position pos = {-1, -1};
+    // 找到第一个空闲空间作为起点
+    int startRow = -1, startCol = -1;
+    for (int i = 0; i < labyrinth->rows; i++) {
+        for (int j = 0; j < labyrinth->cols; j++) {
+            if (labyrinth->map[i][j] == '.') {
+                startRow = i;
+                startCol = j;
+                break;
+            }
+        }
+        if (startRow != -1) {
+            break;
+        }
+    }
+    
+    // 如果没有找到空闲空间，直接返回 false
+    if (startRow == -1) {
+        return pos;
+    }
+
+    pos.row = startRow;
+    pos.col = startCol;
+
     return pos;
 }
 
 bool isEmptySpace(Labyrinth *labyrinth, int row, int col) {
-    // 查找指定位置是否为空
-    // 判断输入位置是否合法
     if (row >= 0 && row <= 99 && col >= 0 && col <= 99) {
         return labyrinth->map[row][col] == 1;
     }
@@ -218,10 +276,40 @@ bool saveMap(Labyrinth *labyrinth, const char *filename) {
 
 // Check if all empty spaces are connected using DFS
 void dfs(Labyrinth *labyrinth, int row, int col, bool visited[MAX_ROWS][MAX_COLS]) {
-    // TODO: Implement this function
+    // 检查是否越界 或 是否是墙 或 是否已访问
+    if (row < 0 || row >= labyrinth->rows || col < 0 || col >= labyrinth->cols ||
+    labyrinth->map[row][col] == '#' || labyrinth->map[row][col] >= 0 ||
+    labyrinth->map[row][col] <= 9 || visited[row][col]) {
+        return; // 如果找到终点，直接返回
+    }
+
+    // 标记当前节点为已访问
+    visited[row][col] = true;
+    
+    // 递归探索四个方向
+    dfs(labyrinth, row + 1, col, visited); //向下
+    dfs(labyrinth, row - 1, col, visited); //向上
+    dfs(labyrinth, row, col + 1, visited); //向右
+    dfs(labyrinth, row, col - 1, visited); //向左
 }
 
 bool isConnected(Labyrinth *labyrinth) {
-    // TODO: Implement this function
-    return false;
+    // 初始化访问标记数组
+    bool visited[MAX_ROWS][MAX_COLS] = {false};
+
+    Position pos = findFirstEmptySpace(labyrinth);
+
+    // 从起点开始 DFS　遍历
+    dfs(labyrinth, pos.row, pos.col, visited);
+
+    // 检查是否所有空闲空间都被访问过
+    for (int i = 0; i < labyrinth->rows; i++) {
+        for (int j = 0; j < labyrinth->cols; j++) {
+            if (labyrinth->map[i][j] == '.' && !visited[i][j]) {
+                return false; // 找到未访问的空闲空间，说明此迷宫不连通
+            }
+        }
+    }
+
+    return true; // 所有空闲空间都已访问，说明连通
 }
