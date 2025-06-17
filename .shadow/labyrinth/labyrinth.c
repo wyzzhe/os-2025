@@ -170,19 +170,34 @@ bool movePlayer(Labyrinth *labyrinth, char playerId, const char *direction) {
     // 先查找玩家位置
     pos = findPlayer(labyrinth, playerId);
     if (pos.row != -1 && pos.col != -1) {
-        labyrinth->map[pos.row][pos.col] = '.';
-        switch (*direction) {
-            case 'u':
+        labyrinth->map[pos.row][pos.col] = '.'; // 清楚当前玩家位置
+
+        // 根据方向移动玩家
+        if (strcmp(direction, "up") == 0) {
+            if (pos.row > 0 && labyrinth->map[pos.row - 1] == '.') {
                 labyrinth->map[pos.row - 1][pos.col] = playerId;
-            case 'd':
+            }
+        } else if (strcmp(direction, "down") == 0) {
+            if (pos.row < labyrinth->rows && labyrinth->map[pos.row + 1] != '.') {
                 labyrinth->map[pos.row + 1][pos.col] = playerId;
-            case 'l':
+            }
+        } else if (strcmp(direction, "left") == 0) {
+            if (pos.col > 0 && labyrinth->map[pos.col - 1] != '.') {
                 labyrinth->map[pos.row][pos.col - 1] = playerId;
-            case 'r':
+            }
+        } else if (strcmp(direction, "right") == 0) {
+            if (pos.col < labyrinth->cols && labyrinth->map[pos.col - 1] != '.') {
                 labyrinth->map[pos.row][pos.col + 1] = playerId;
+            }
+        } else {
+            printf("未知方向：%s\n", direction);
+            return false;
         }
+
+        return true; // 移动成功
     }
-    return false;
+
+    return false; // 玩家未找到或移动失败
 }
 
 bool saveMap(Labyrinth *labyrinth, const char *filename) {
