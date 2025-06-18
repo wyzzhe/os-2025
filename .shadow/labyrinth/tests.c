@@ -27,7 +27,6 @@ SystemTest(invalid_args_2, ((const char *[]){ "hello os world" })) {
 
 // Test initialization function
 static void setup_test_map() {
-    raise(SIGSTOP);
     FILE *f = fopen("test.map", "w");
     tk_assert(f != NULL, "Should be able to create test map file");
     fprintf(f, "....\n");
