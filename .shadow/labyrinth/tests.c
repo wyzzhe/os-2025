@@ -21,6 +21,7 @@ SystemTest(invalid_args_1, ((const char *[]){ "--nonexist", "--another" })) {
 }
 
 SystemTest(invalid_args_2, ((const char *[]){ "hello os world" })) {
+    raise(SIGSTOP);
     tk_assert(result->exit_status == 1, "Must exit 1");
 }
 
@@ -44,7 +45,6 @@ SystemTest(test_basic_move,
     ((const char *[]){ "--map", "test.map", "--player", "1", "--move", "right" }),
     .init = setup_test_map,
     .fini = cleanup_test_map) {
-    raise(SIGSTOP);
     tk_assert(result->exit_status == 0, "Must exit 0");
 }
 
