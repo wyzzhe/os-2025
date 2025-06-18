@@ -135,7 +135,7 @@ bool loadMap(Labyrinth *labyrinth, const char *filename) {
         // 计算当前行的列数
         col_count = strlen(line);
         if (line[col_count - 1] == '\n') {
-            line[col_count - 1] == '\0'; // 去掉换行符
+            line[col_count - 1] = '\0'; // 去掉换行符
             col_count--; // 当前行列数更新为去掉换行符的列数
         }
 
