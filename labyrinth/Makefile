@@ -12,4 +12,6 @@ include ../.shadow/oslabs.mk
 my:
 	gcc -g -I../testkit/ -o labyrinth ./labyrinth.c
 run:
+	TK_VERBOSE= ./labyrinth
+test:
 	TK_VERBOSE= ./labyrinth > test-res.txt

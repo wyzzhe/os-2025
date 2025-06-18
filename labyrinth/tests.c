@@ -1,4 +1,5 @@
 #include <string.h>
+#include <signal.h>
 #include "testkit.h"
 #include "labyrinth.h"
 
