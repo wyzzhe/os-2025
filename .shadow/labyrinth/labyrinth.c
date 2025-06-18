@@ -119,36 +119,37 @@ bool loadMap(Labyrinth *labyrinth, const char *filename) {
     labyrinth->cols = 0;
 
     // 逐行读取文件内容
-    char line[MAX_COLS + 1]; // MAX_COLS + 1 为 fgets() 行尾的'\0' 提供位置
-    while (fgets(line, sizeof(line), file)) {
-        // 去掉行尾的换行符
-        line[strcspn(line, "\n")] = '\0';
+    char line[MAX_COLS + 2]; // MAX_COLS + 2 为 fgets() 行尾的 '\n' 和 '\0' 提供位置
+    int row_count = 0;
+    int col_count = 0;
 
-        // 如果是第一行，设置列数
-        if (labyrinth->rows == 0) {
-            labyrinth->cols = strlen(line);
-            // 检查列数是否超出限制
-            if (labyrinth->cols > MAX_COLS) {
-                fprintf(stderr, "Error: Column count exceeds the maximum limit of %d.\n", MAX_COLS);
-                fclose(file);
-                return false;
-            }
+    while (fgets(line, sizeof(line), file) != NULL) {
+        // 列数检查
+        if (line[MAX_COLS] != '\n' && line[MAX_COLS] != '\0') {
+            fprintf(stderr, "Error: 地图列数超限.\n");
+            fclose(file);
+            return EXIT_FAILURE;
+        }
+        row_count++; // 每读取一行，行数加1
+
+        // 计算当前行的列数
+        col_count = strlen(line);
+        if (line[col_count - 1] == '\n') {
+            line[col_count - 1] == '\0'; // 去掉换行符
+            col_count--; // 当前行列数更新为去掉换行符的列数
         }
 
-        // 检查行数是否超出限制
-        if (labyrinth->rows >= MAX_ROWS) {
-            fprintf(stderr, "Error: Row count excedds the maximum limit of %d.\n", MAX_ROWS);
+        // 行数检查
+        if (row_count > MAX_ROWS) {
+            fprintf(stderr, "Error: 地图行数超限.\n");
             fclose(file);
-            return false;
+            return EXIT_FAILURE;
         }
 
         // 将当前行内容复制到 labyrinth 的 map 中
         strcpy(labyrinth->map[labyrinth->rows], line);
-
-        // 更新行数
-        labyrinth->rows++;
     }
-
+   
     // 检查是否成功读取了地图
     if (labyrinth->rows == 0 || labyrinth->cols == 0) {
         fprintf(stderr, "Error: Failed to load map.\n");
