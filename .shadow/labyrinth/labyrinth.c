@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case VERSION:
-                printf("Labyrith Game V0.0.0\n");
+                printf("Labyrinth Game V0.0.0\n");
                 break;
             case '?':
                 printUsage();
