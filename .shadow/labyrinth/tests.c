@@ -1,4 +1,5 @@
 #include <string.h>
+#include <signal.h>
 #include "testkit.h"
 #include "labyrinth.h"
 
@@ -43,7 +44,7 @@ SystemTest(test_basic_move,
     ((const char *[]){ "--map", "test.map", "--player", "1", "--move", "right" }),
     .init = setup_test_map,
     .fini = cleanup_test_map) {
-    while(1);
+    raise(SIGSTOP);
     tk_assert(result->exit_status == 0, "Must exit 0");
 }
 
