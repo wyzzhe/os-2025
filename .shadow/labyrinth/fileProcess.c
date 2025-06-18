@@ -5,6 +5,8 @@
 #define MAX_ROWS 2 // 定义最大行数
 #define MAX_COLS 4 // 定义最大列数
 
+// 条件编译
+#ifdef TEST_FILEPROCESS
 int main(int argc, char *argv[]) {
     char *filename = argv[1];
     FILE *file = fopen(filename, "r");
@@ -42,3 +44,4 @@ int main(int argc, char *argv[]) {
     fclose(file);
     return EXIT_SUCCESS;
 }
+#endif
