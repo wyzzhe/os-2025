@@ -21,13 +21,13 @@ SystemTest(invalid_args_1, ((const char *[]){ "--nonexist", "--another" })) {
 }
 
 SystemTest(invalid_args_2, ((const char *[]){ "hello os world" })) {
-    raise(SIGSTOP);
     tk_assert(result->exit_status == 1, "Must exit 1");
 }
 
 
 // Test initialization function
 static void setup_test_map() {
+    raise(SIGSTOP);
     FILE *f = fopen("test.map", "w");
     tk_assert(f != NULL, "Should be able to create test map file");
     fprintf(f, "....\n");
