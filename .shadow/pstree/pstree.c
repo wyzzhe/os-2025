@@ -320,6 +320,7 @@ int main(int argc, char *argv[]) {
         printUsage();
         return EXIT_FAILURE;
     }
+    printUsage();
     return EXIT_SUCCESS;
 }
 
