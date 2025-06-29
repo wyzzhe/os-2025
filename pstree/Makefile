@@ -7,3 +7,15 @@ export MODULE := M2
 all: $(NAME)
 
 include ../.shadow/oslabs.mk
+
+pt:
+	gcc -o pstree ./pstree.c
+
+cl:
+	rm -rf ./pstree
+
+runp:
+	./pstree -p
+
+runv:
+	./pstree -V
