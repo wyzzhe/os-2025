@@ -147,22 +147,6 @@ void printProcessTree(int ppid, int level) {
         return;
     }
 
-    // // 动态生成字符串
-    // char indent[level * 4 + 1];
-    // memset(indent, '_', level * 4);
-    // memset(indent, ' ', (level - 1) * 4);
-    // indent[(level - 1) * 4] = '|';
-    // indent[level * 4] = '\0';
-
-
-    // // 递归打印当前哈希表项子进程
-    // Node* current = hashTable[index].children;
-    // while (current != NULL) {
-    //     printf("%sPID: %d\n", indent, current->pid); // *表示可变参数
-    //     printProcessTree(current->pid, level + 1);
-    //     current = current->next;
-    // }
-
     // 递归打印所有哈希表项子进程
     printCurProcessTree(ppid, level);
     HashTableItem* cur = hashTable[index].next;
@@ -233,7 +217,7 @@ int get_ppid_from_stat(const char *pid) {
     return ppid;
 }
 
-bool printPids() {
+bool printPids(int opt) {
     DIR *dir; // (struct __dirstream *) dir 是指向结构体的指针
     struct dirent *entry; // (struct dirent *) entry是指向结构体的指针
 
@@ -270,10 +254,6 @@ bool printPids() {
     return true;
 }
 
-bool printChild() {
-    return true;
-}
-
 int main(int argc, char *argv[]) {
     int opt;
     // 短选项
@@ -291,13 +271,13 @@ int main(int argc, char *argv[]) {
             != -1) {
         switch (opt) {
             case 'p':
-                if (!printPids()) {
+                if (!printPids(opt)) {
                     return EXIT_FAILURE;
                 }
                 printf("打印进程号完毕\n");
                 break;
             case 'n':
-                if (!printPids()) {
+                if (!printPids(opt)) {
                     return EXIT_FAILURE;
                 }
                 printf("pid从小到大排序完毕\n");
