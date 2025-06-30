@@ -134,7 +134,7 @@ void printCurProcessTree(int ppid, int level) {
     // 递归打印当前哈希表项子进程
     Node* current = hashTable[index].children;
     while (current != NULL) {
-        printf("%sPID: %d\n", indent, current->pid); // *表示可变参数
+        printf("%sPID: (%d)\n", indent, current->pid); // *表示可变参数
         printCurProcessTree(current->pid, level + 1);
         current = current->next;
     }
@@ -264,7 +264,7 @@ bool printPids() {
 
     // 打印进程树，从根节点 (PID 1) 开始
     printf("Process Tree:\n");
-    printf("PID: %d\n", 1);
+    printf("PID: (%d)\n", 1);
     printProcessTree(1, 1);
 
     return true;
